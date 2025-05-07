@@ -1,8 +1,16 @@
-from mcp.server.fastmcp import FastMCP
+import asyncio
+import os
+import logging
+from fastmcp import FastMCP
 
-# Create an MCP server
-mcp = FastMCP()
+# 1) Configure Python logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger("demo-server")
 
+mcp = FastMCP("Math-Server 🚀")
 #### Tools ####
 # Add an addition tool
 @mcp.tool()
@@ -48,6 +56,20 @@ def multiply(a: int, b: int) -> int:
     """Multiply two numbers"""
     return a * b
 
+
 if __name__ == "__main__":
-    # Initialize and run the server
-    mcp.run(transport='sse')
+    host = "0.0.0.0"
+    port = int(os.environ.get("PORT", 8001))
+    # Decide your SSE endpoint here:
+    endpoint = "/events"
+
+    # 2) Your startup message
+    logger.debug(f"🚀 Starting FastMCP SSE server on http://{host}:{port}{endpoint}")
+
+    # 3) Lower-case log_level
+    asyncio.run(
+        mcp.run_sse_async(
+            host=host,
+            port=port,
+        )
+    )  
